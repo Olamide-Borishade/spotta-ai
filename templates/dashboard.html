@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Spotta AI{% endblock %}
+
+{% block content %}
+  <h2>Welcome, {{ username }}</h2>
+  <p class="results-heading">Your parking activity</p>
+
+  {% if progress %}
+    <ul class="progress-list">
+      {% for entry in progress %}
+        <li>Spot #{{ entry.spot_id }} — {{ entry.status }} ({{ entry.updated_at }})</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="results-heading">No activity yet. <a href="/">Search for parking</a> to get started.</p>
+  {% endif %}
+{% endblock %}

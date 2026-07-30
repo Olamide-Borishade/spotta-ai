@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Log in — Spotta AI{% endblock %}
+
+{% block content %}
+  <h2>Log in</h2>
+  <p class="results-heading">Welcome back to Spotta AI.</p>
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  <form class="auth-form" method="POST" action="/login">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Log in</button>
+  </form>
+
+  <p class="results-heading">Don't have an account? <a href="/signup">Sign up</a></p>
+{% endblock %}

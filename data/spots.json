@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Robson St Lot",
+    "lat": 49.2827,
+    "lng": -123.1207,
+    "price_per_hour": 3.5,
+    "distance_km": 0.2,
+    "confidence": 0.92
+  },
+  {
+    "id": 2,
+    "name": "Granville Street Parkade",
+    "lat": 49.2811,
+    "lng": -123.1248,
+    "price_per_hour": 4.0,
+    "distance_km": 0.4,
+    "confidence": 0.85
+  },
+  {
+    "id": 3,
+    "name": "Waterfront Station Lot",
+    "lat": 49.2861,
+    "lng": -123.1115,
+    "price_per_hour": 2.75,
+    "distance_km": 0.9,
+    "confidence": 0.78
+  },
+  {
+    "id": 4,
+    "name": "Gastown Public Lot",
+    "lat": 49.2839,
+    "lng": -123.1076,
+    "price_per_hour": 3.0,
+    "distance_km": 0.6,
+    "confidence": 0.81
+  },
+  {
+    "id": 5,
+    "name": "Yaletown Parkade",
+    "lat": 49.2765,
+    "lng": -123.1216,
+    "price_per_hour": 4.5,
+    "distance_km": 1.1,
+    "confidence": 0.7
+  },
+  {
+    "id": 6,
+    "name": "Coal Harbour Lot",
+    "lat": 49.2903,
+    "lng": -123.1215,
+    "price_per_hour": 5.0,
+    "distance_km": 1.3,
+    "confidence": 0.65
+  },
+  {
+    "id": 7,
+    "name": "Library Square Parkade",
+    "lat": 49.2793,
+    "lng": -123.1157,
+    "price_per_hour": 3.25,
+    "distance_km": 0.5,
+    "confidence": 0.88
+  },
+  {
+    "id": 8,
+    "name": "Chinatown Lot",
+    "lat": 49.2801,
+    "lng": -123.1021,
+    "price_per_hour": 2.5,
+    "distance_km": 1.0,
+    "confidence": 0.6
+  },
+  {
+    "id": 9,
+    "name": "Davie Street Lot",
+    "lat": 49.2789,
+    "lng": -123.1315,
+    "price_per_hour": 3.75,
+    "distance_km": 0.8,
+    "confidence": 0.74
+  },
+  {
+    "id": 10,
+    "name": "BC Place Parkade",
+    "lat": 49.2768,
+    "lng": -123.1119,
+    "price_per_hour": 4.25,
+    "distance_km": 0.7,
+    "confidence": 0.83
+  }
+]

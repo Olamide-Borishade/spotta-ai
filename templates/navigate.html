@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Navigate — {{ spot.name }} — Spotta AI{% endblock %}
+
+{% block content %}
+  <div class="nav-screen">
+    <h2>Navigating to {{ spot.name }}</h2>
+    <p class="sub">{{ spot.distance_km }} km away &middot; ${{ "%.2f"|format(spot.price_per_hour) }}/hr</p>
+
+    <div class="direction-step">
+      <span class="step-num">1</span>
+      <span>Head toward downtown Vancouver on the nearest arterial road.</span>
+    </div>
+    <div class="direction-step">
+      <span class="step-num">2</span>
+      <span>Continue for {{ spot.distance_km }} km, following posted parking signage.</span>
+    </div>
+    <div class="direction-step">
+      <span class="step-num">3</span>
+      <span>Arrive at {{ spot.name }} and pull in — your spot is reserved by Spotta AI.</span>
+    </div>
+  </div>
+
+  <a class="back-link" href="/">&larr; Back to search</a>
+{% endblock %}

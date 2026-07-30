@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <form class="search-form" method="POST" action="/">
+    <input
+      type="text"
+      name="destination"
+      placeholder="Enter a destination, e.g. Robson St, Downtown Vancouver"
+      value="{{ destination or '' }}"
+      required
+    >
+    <button type="submit">Search</button>
+  </form>
+
+  {% if results %}
+    <p class="results-heading">Best spots near "{{ destination }}"</p>
+
+    {% for spot in results %}
+      <div class="spot-card">
+        <div class="spot-info">
+          <h3>{{ spot.name }}</h3>
+          <div class="spot-meta">
+            {{ spot.distance_km }} km away &middot; ${{ "%.2f"|format(spot.price_per_hour) }}/hr &middot;
+            <span class="confidence">{{ (spot.confidence * 100)|round|int }}% confidence</span>
+          </div>
+        </div>
+        <a class="navigate-btn" href="/navigate/{{ spot.id }}">Navigate</a>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endblock %}
