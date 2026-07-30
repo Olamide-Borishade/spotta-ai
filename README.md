@@ -21,17 +21,17 @@ pip install -r requirements.txt
 python app.py
 ```
 
+
 Then open `http://127.0.0.1:5000` in your browser.
 
 ## Project structure
 
-```
-app.py            - routes and app entrypoint
-logic/ranking.py  - scoring/ranking logic (rule-based placeholder for AI)
-data/spots.json   - sample parking spot data
-templates/        - HTML pages (Jinja2)
-static/           - CSS
-```
+app.py - routes and app entrypoint
+logic/ranking.py - scoring/ranking logic (rule-based placeholder for AI)
+data/spots.json - sample parking spot data
+templates/ - HTML pages (Jinja2)
+static/ - CSS
+
 
 ## Implemented vs. placeholder
 
