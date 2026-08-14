@@ -3,16 +3,22 @@
 {% block title %}Dashboard — Spotta AI{% endblock %}
 
 {% block content %}
+<div class="wrap page-wrap">
+  <p class="kicker">Dashboard</p>
   <h2>Welcome, {{ username }}</h2>
   <p class="results-heading">Your parking activity</p>
 
   {% if progress %}
-    <ul class="progress-list">
+    <div class="progress-grid">
       {% for entry in progress %}
-        <li>Spot #{{ entry.spot_id }} — {{ entry.status }} ({{ entry.updated_at }})</li>
+        <div class="progress-card">
+          Spot #{{ entry.spot_id }} — {{ entry.status }}
+          <span class="mono">({{ entry.updated_at }})</span>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
     <p class="results-heading">No activity yet. <a href="/">Search for parking</a> to get started.</p>
   {% endif %}
+</div>
 {% endblock %}

@@ -2,24 +2,50 @@
 
 {% block title %}Navigate — {{ spot.name }} — Spotta AI{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
 {% block content %}
+<div class="wrap page-wrap">
   <div class="nav-screen">
     <h2>Navigating to {{ spot.name }}</h2>
     <p class="sub">{{ spot.distance_km }} km away &middot; ${{ "%.2f"|format(spot.price_per_hour) }}/hr</p>
 
-    <div class="direction-step">
-      <span class="step-num">1</span>
-      <span>Head toward downtown Vancouver on the nearest arterial road.</span>
-    </div>
-    <div class="direction-step">
-      <span class="step-num">2</span>
-      <span>Continue for {{ spot.distance_km }} km, following posted parking signage.</span>
-    </div>
-    <div class="direction-step">
-      <span class="step-num">3</span>
-      <span>Arrive at {{ spot.name }} and pull in — your spot is reserved by Spotta AI.</span>
-    </div>
+    <div id="map"></div>
+
+    <a
+      href="https://www.google.com/maps/dir/?api=1&destination={{ spot.lat }},{{ spot.lng }}&travelmode=driving"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-primary"
+    >
+      Get directions in Google Maps
+    </a>
+
+    <p class="caveat">
+      Availability is estimated, not guaranteed. Check posted signage on arrival.
+    </p>
   </div>
 
   <a class="back-link" href="/">&larr; Back to search</a>
+</div>
+
+<script>
+  const spotLat = {{ spot.lat }};
+  const spotLng = {{ spot.lng }};
+
+  const map = L.map('map').setView([spotLat, spotLng], 17);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  L.marker([spotLat, spotLng])
+    .addTo(map)
+    .bindPopup({{ spot.name | tojson }})
+    .openPopup();
+</script>
 {% endblock %}

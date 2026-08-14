@@ -2,17 +2,37 @@
 
 {% block title %}Sign up — Spotta AI{% endblock %}
 
+{% block body_class %}auth{% endblock %}
+
 {% block content %}
-  <h2>Create your account</h2>
-  <p class="results-heading">Sign up to track your parking activity.</p>
+<div class="grid-overlay"></div>
 
-  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+<div class="auth-split">
+  {% set auth_headline %}Start finding your <em>spot</em> before you arrive.{% endset %}
+  {% set auth_lede %}Create an account to save spots, revisit your search history, and pick up right where you left off.{% endset %}
+  {% include "_auth_brand.html" %}
 
-  <form class="auth-form" method="POST" action="/signup">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Sign up</button>
-  </form>
+  <div class="form-side">
+    <div class="form-card">
+      <h2>Sign up</h2>
+      <p class="sub">Sign up to track your parking activity.</p>
 
-  <p class="results-heading">Already have an account? <a href="/login">Log in</a></p>
+      {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
+
+      <form class="auth-form" method="POST" action="/signup">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Choose a username" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Choose a password" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="btn-primary">Sign up</button>
+      </form>
+
+      <p class="alt">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </div>
+</div>
 {% endblock %}

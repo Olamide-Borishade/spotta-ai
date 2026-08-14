@@ -4,13 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Spotta AI{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='spotta-icon.svg') }}">
+{% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 <header class="top">
   <div class="wrap">
-    <span class="logo-mark">S</span> Spotta AI
+    <a href="{{ url_for('dashboard') if logged_in else url_for('index') }}" class="logo">
+      <img src="{{ url_for('static', filename='spotta-icon.svg') }}" alt="Spotta AI" class="logo-mark">
+      Spotta AI
+    </a>
+    {% if request.endpoint == 'index' %}
+    <nav class="page-links">
+      <a href="#how">How it works</a>
+      <a href="#map">Live map</a>
+      <a href="#about">About</a>
+    </nav>
+    {% endif %}
     <nav class="auth-nav">
       {% if logged_in %}
         <span>Hi, {{ username }}</span>
@@ -24,9 +38,45 @@
   </div>
 </header>
 
-<main class="wrap">
+<main>
   {% block content %}{% endblock %}
 </main>
+
+<div id="assistant-widget" class="assistant-widget">
+  <button id="assistant-toggle" class="assistant-toggle" aria-label="Open Spotta Assistant" aria-expanded="false">💬</button>
+
+  <div id="assistant-panel" class="assistant-panel" hidden>
+    <div class="assistant-header">
+      <span>Spotta Assistant</span>
+      <button type="button" id="assistant-close" class="assistant-close" aria-label="Close assistant">&times;</button>
+    </div>
+
+    <div class="assistant-model-row">
+      <select id="assistant-model">
+        <option value="openai/gpt-oss-20b:free" selected>Free model</option>
+        <option value="openai/gpt-4o-mini">GPT-4o mini (paid)</option>
+        <option value="anthropic/claude-sonnet-5">Claude Sonnet 5 (paid)</option>
+      </select>
+      <a href="https://openrouter.ai/models" target="_blank" rel="noopener noreferrer" class="assistant-models-link">Browse models</a>
+    </div>
+    <p class="assistant-hint">Paid models require OpenRouter credits on your account.</p>
+
+    <div id="assistant-messages" class="assistant-messages">
+      <div class="assistant-msg assistant-msg-bot">Hi! I'm the Spotta Assistant. Ask me how search, confidence scores, the map, navigating, or accounts work.</div>
+    </div>
+
+    <form id="assistant-form" class="assistant-form">
+      <input type="text" id="assistant-input" placeholder="Ask a question..." autocomplete="off" required>
+      <button type="button" id="assistant-mic-button" class="mic-btn" aria-label="Speak your question">
+        🎙️
+        <span class="mic-status">Listening…</span>
+      </button>
+      <button type="submit" class="btn-primary btn-small">Send</button>
+    </form>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='voice.js') }}"></script>
+<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 
 </body>
 </html>

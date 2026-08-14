@@ -1,31 +1,288 @@
 {% extends "base.html" %}
 
+{% block body_class %}home{% endblock %}
+
+{% block head %}
+{% if results %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endif %}
+{% endblock %}
+
 {% block content %}
-  <form class="search-form" method="POST" action="/">
-    <input
-      type="text"
-      name="destination"
-      placeholder="Enter a destination, e.g. Robson St, Downtown Vancouver"
-      value="{{ destination or '' }}"
-      required
-    >
-    <button type="submit">Search</button>
-  </form>
+<div class="grid-tex"></div>
+<div class="glow"></div>
 
+<section class="hero">
+  <div class="wrap-flow herogrid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Live in Downtown Vancouver</div>
+      <h1>Find your spot <em>before</em> you arrive.</h1>
+      <p class="lede">Enter a destination and Spotta ranks nearby parking by distance, price, and availability confidence, right in your browser.</p>
+
+      <form class="search-form" method="POST" action="/">
+        <input
+          type="text"
+          id="chat-input"
+          name="destination"
+          placeholder="Enter a destination, e.g. Robson St, Downtown Vancouver"
+          value="{{ destination or '' }}"
+          required
+        >
+        <button type="button" id="mic-button" class="mic-btn" aria-label="Speak your destination">
+          🎙️
+          <span class="mic-status">Listening…</span>
+        </button>
+        <button type="submit" class="btn-primary">Search</button>
+      </form>
+
+      {% if error %}<p class="error hero-error">{{ error }}</p>{% endif %}
+    </div>
+
+    <div class="signature">
+      <div class="sig-grid"></div>
+      <div class="sweep"></div>
+      <div class="st h1"></div><div class="st h2"></div><div class="st v1"></div><div class="st v2"></div>
+      <div class="cand c1"></div><div class="cand c2"></div><div class="cand c3"></div>
+      <div class="found"><div class="rring"></div><div class="rring r2"></div><div class="fdot"></div></div>
+      <div class="fcard">Spot found &middot; 0.3km &middot; <span class="badge-inline">Likely open</span></div>
+    </div>
+  </div>
+</section>
+
+{% if results is not none %}
   {% if results %}
-    <p class="results-heading">Best spots near "{{ destination }}"</p>
+    <section class="results-section" id="results-section">
+      <div class="wrap">
+        <div class="results-header">
+          <div>
+            <p class="kicker">Results</p>
+            <h2 class="results-title">Best spots near "{{ destination }}"</h2>
+          </div>
 
-    {% for spot in results %}
-      <div class="spot-card">
-        <div class="spot-info">
-          <h3>{{ spot.name }}</h3>
-          <div class="spot-meta">
-            {{ spot.distance_km }} km away &middot; ${{ "%.2f"|format(spot.price_per_hour) }}/hr &middot;
-            <span class="confidence">{{ (spot.confidence * 100)|round|int }}% confidence</span>
+          <div class="header-controls">
+            <div class="sort-controls">
+              <label for="sort-select" class="sort-label">Sort by</label>
+              <select id="sort-select">
+                <option value="best" selected>Best match</option>
+                <option value="cheapest">Cheapest</option>
+                <option value="closest">Closest</option>
+                <option value="confidence">Most likely open</option>
+              </select>
+            </div>
+
+            <button type="button" id="driving-mode-toggle" class="btn-secondary btn-small" aria-pressed="false">
+              Driving Mode
+            </button>
           </div>
         </div>
-        <a class="navigate-btn" href="/navigate/{{ spot.id }}">Navigate</a>
+
+        <div id="results-map"></div>
+
+        <div class="result-grid">
+          {% for spot in results %}
+            <div
+              class="result-card"
+              data-rank="{{ loop.index0 }}"
+              data-price="{{ spot.price_per_hour }}"
+              data-distance="{{ spot.distance_km }}"
+              data-confidence="{{ spot.confidence }}"
+            >
+              <div class="spot-info">
+                <h3>{{ spot.name }}</h3>
+                <div class="spot-meta mono">
+                  {{ spot.distance_km }} km away &middot; ${{ "%.2f"|format(spot.price_per_hour) }}/hr &middot;
+                  <span class="badge badge-{{ spot.confidence_tier }}">{{ spot.confidence_label }}</span>
+                  <span class="confidence-raw">({{ (spot.confidence * 100)|round|int }}%)</span>
+                </div>
+              </div>
+              <a class="btn-primary btn-small" href="/navigate/{{ spot.id }}">Navigate</a>
+            </div>
+          {% endfor %}
+        </div>
       </div>
-    {% endfor %}
+    </section>
+
+    <script>
+      const spotData = [
+        {% for spot in results %}
+        {
+          id: {{ spot.id }},
+          name: {{ spot.name | tojson }},
+          lat: {{ spot.lat }},
+          lng: {{ spot.lng }},
+          price_per_hour: {{ spot.price_per_hour }},
+          confidence_label: {{ spot.confidence_label | tojson }}
+        },
+        {% endfor %}
+      ];
+
+      const resultsMap = L.map('results-map');
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(resultsMap);
+
+      const markers = spotData.map(spot => {
+        const marker = L.marker([spot.lat, spot.lng]).addTo(resultsMap);
+        marker.bindPopup(
+          `<strong>${spot.name}</strong><br>` +
+          `$${spot.price_per_hour.toFixed(2)}/hr &middot; ${spot.confidence_label}<br>` +
+          `<a href="/navigate/${spot.id}">Navigate</a>`
+        );
+        return marker;
+      });
+
+      if (markers.length) {
+        resultsMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [30, 30] });
+      }
+
+      const sortComparators = {
+        best: (a, b) => parseInt(a.dataset.rank, 10) - parseInt(b.dataset.rank, 10),
+        cheapest: (a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price),
+        closest: (a, b) => parseFloat(a.dataset.distance) - parseFloat(b.dataset.distance),
+        confidence: (a, b) => parseFloat(b.dataset.confidence) - parseFloat(a.dataset.confidence)
+      };
+
+      document.getElementById('sort-select').addEventListener('change', function () {
+        const grid = document.querySelector('.result-grid');
+        const cards = Array.from(grid.querySelectorAll('.result-card'));
+        cards.sort(sortComparators[this.value]).forEach(card => grid.appendChild(card));
+      });
+
+      const drivingModeToggle = document.getElementById('driving-mode-toggle');
+      drivingModeToggle.addEventListener('click', function () {
+        const section = document.getElementById('results-section');
+        const isOn = section.classList.toggle('driving-mode');
+        this.textContent = isOn ? 'Exit Driving Mode' : 'Driving Mode';
+        this.setAttribute('aria-pressed', String(isOn));
+        this.classList.toggle('btn-primary', isOn);
+        this.classList.toggle('btn-secondary', !isOn);
+      });
+    </script>
+  {% else %}
+    <section class="results-section">
+      <div class="wrap">
+        <div class="empty-state">
+          <p class="empty-title">No spots found near that location.</p>
+          <p class="empty-suggestion">Try a nearby major street or landmark.</p>
+        </div>
+      </div>
+    </section>
   {% endif %}
+{% endif %}
+
+<section class="section reveal">
+  <div class="wrap-flow">
+    <div class="kicker">The problem</div>
+    <h2>Ten minutes of circling, every single trip.</h2>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="num">~10 min</div>
+        <div class="lab">Typical time spent hunting for parking per downtown trip.</div>
+      </div>
+      <div class="stat">
+        <div class="num">Every trip</div>
+        <div class="lab">The stress repeats daily for commuters, visitors, and drivers alike.</div>
+      </div>
+      <div class="stat">
+        <div class="num">Wasted fuel</div>
+        <div class="lab">Circling burns gas and time with nothing to show for it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="how">
+  <div class="wrap-flow">
+    <div class="kicker">How it works</div>
+    <h2>One destination in. One best spot out.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3>Enter your destination</h3>
+        <p>Type it, or say it out loud. Spotta pinpoints where you're headed.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3>Spotta ranks nearby spots</h3>
+        <p>Real parking data scored by distance, price, and availability confidence.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3>Navigate and park</h3>
+        <p>Pick your spot, get directions, and pull in. No circling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="map">
+  <div class="wrap-flow">
+    <div class="kicker">Live map</div>
+    <h2>See every option at a glance.</h2>
+    <p class="lead">Ranked spots plotted around your destination, so you see the whole picture, not just a list.</p>
+    <div class="mapframe">
+      <div class="sig-grid"></div>
+      <div class="sweep"></div>
+      <div class="st h1" style="top:34%;"></div><div class="st h2" style="top:68%;"></div>
+      <div class="st v1" style="left:30%;"></div><div class="st v2" style="left:62%;"></div>
+      <div class="mpin teal p1"></div><div class="mpin p2"></div><div class="mpin p3"></div>
+      <div class="mpin p4"></div><div class="mpin teal p5"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="about">
+  <div class="wrap-flow">
+    <div class="kicker">About the founder</div>
+    <div class="about-card">
+      <a
+        class="portrait-flip"
+        href="https://www.linkedin.com/in/olamideborishade/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Olamide Borishade on LinkedIn"
+      >
+        <div class="portrait-inner">
+          <div class="portrait-front">
+            <span class="portrait-initials">OB</span>
+            <img src="/static/portrait.jpg" alt="Olamide Borishade" onerror="this.style.display='none'" />
+          </div>
+          <div class="portrait-back">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="#ffffff" aria-hidden="true">
+              <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <div class="about-text">
+        <h3>Olamide Borishade</h3>
+        <p class="about-role">Data Analytics Graduate Student &amp; Founder of Spotta AI</p>
+        <p class="about-bio">Aspiring Data Engineer | MS Data Analytics @ Northeastern | Bridging data and construction project management | Founder, Community Pantry Initiative | VP, BSA Vancouver</p>
+        <div class="about-links">
+          <a href="https://www.linkedin.com/in/olamideborishade/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://github.com/Olamide-Borishade" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="mailto:borishade.o@northeastern.edu">Email</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">&copy; 2026 Spotta AI &middot; Find your spot before you arrive.</footer>
+
+<script>
+  const searchForm = document.querySelector('.search-form');
+  if (searchForm) {
+    searchForm.addEventListener('submit', function () {
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Searching…';
+    });
+  }
+</script>
+<script src="{{ url_for('static', filename='reveal.js') }}"></script>
 {% endblock %}
