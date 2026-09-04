@@ -26,9 +26,16 @@
     </nav>
     {% endif %}
     <nav class="auth-nav">
+      <a href="/components">Components</a>
+      <a href="/workflows">Workflows</a>
       {% if logged_in %}
         <span>Hi, {{ username }}</span>
         <a href="/dashboard">Dashboard</a>
+        {% if role == 'admin' %}
+          <a href="/settings">Settings</a>
+          <a href="/chunks">Chunks</a>
+        {% endif %}
+        <a href="/results">Results</a>
         <a href="/logout">Log out</a>
       {% else %}
         <a href="/login">Log in</a>
@@ -53,7 +60,7 @@
 
     <div class="assistant-model-row">
       <select id="assistant-model">
-        <option value="openai/gpt-oss-20b:free" selected>Free model</option>
+        <option value="liquid/lfm-2.5-2.6b:free" selected>Free model</option>
         <option value="openai/gpt-4o-mini">GPT-4o mini (paid)</option>
         <option value="anthropic/claude-sonnet-5">Claude Sonnet 5 (paid)</option>
       </select>

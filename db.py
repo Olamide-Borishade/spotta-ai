@@ -22,6 +22,9 @@ def init_db():
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
+                    role TEXT NOT NULL DEFAULT 'user',
+                    last_destination TEXT,
+                    preferred_sort TEXT NOT NULL DEFAULT 'best',
                     created_at TEXT NOT NULL DEFAULT (datetime('now'))
                 )
             """)
@@ -34,6 +37,14 @@ def init_db():
                     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
                 )
             """)
+            # Migrations for databases created before these columns existed.
+            existing_columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)")}
+            if "role" not in existing_columns:
+                conn.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
+            if "last_destination" not in existing_columns:
+                conn.execute("ALTER TABLE users ADD COLUMN last_destination TEXT")
+            if "preferred_sort" not in existing_columns:
+                conn.execute("ALTER TABLE users ADD COLUMN preferred_sort TEXT NOT NULL DEFAULT 'best'")
     finally:
         conn.close()
 
@@ -58,6 +69,53 @@ def get_user_by_username(username):
         return conn.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
         ).fetchone()
+    finally:
+        conn.close()
+
+
+VALID_ROLES = ("user", "betatester", "admin")
+
+
+def set_user_role(username, role):
+    if role not in VALID_ROLES:
+        raise ValueError(f"role must be one of {VALID_ROLES}")
+
+    conn = get_connection()
+    try:
+        with conn:
+            cur = conn.execute(
+                "UPDATE users SET role = ? WHERE username = ?", (role, username)
+            )
+        if cur.rowcount == 0:
+            raise ValueError(f"no user named {username!r}")
+    finally:
+        conn.close()
+
+
+VALID_SORTS = ("best", "cheapest", "closest", "confidence")
+
+
+def set_last_destination(user_id, destination):
+    conn = get_connection()
+    try:
+        with conn:
+            conn.execute(
+                "UPDATE users SET last_destination = ? WHERE id = ?", (destination, user_id)
+            )
+    finally:
+        conn.close()
+
+
+def set_preferred_sort(user_id, sort):
+    if sort not in VALID_SORTS:
+        raise ValueError(f"sort must be one of {VALID_SORTS}")
+
+    conn = get_connection()
+    try:
+        with conn:
+            conn.execute(
+                "UPDATE users SET preferred_sort = ? WHERE id = ?", (sort, user_id)
+            )
     finally:
         conn.close()
 

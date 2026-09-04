@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Results — Spotta AI{% endblock %}
+
+{% block content %}
+<div class="wrap page-wrap">
+  <p class="kicker">Results</p>
+  <h2>Rated chatbot responses</h2>
+  <p class="results-heading">Every response a user has thumbs-up/down rated, most recent first.</p>
+
+  <div class="results-stats">
+    <div class="stat-pill stat-up">👍 {{ up_count }}</div>
+    <div class="stat-pill stat-down">👎 {{ down_count }}</div>
+    <div class="stat-pill stat-pct">{{ positive_pct }}% positive</div>
+  </div>
+
+  <div class="results-table">
+    {% for r in results %}
+      <details class="results-row">
+        <summary>
+          <span class="results-icon">{{ "👍" if r.rating == "up" else "👎" }}</span>
+          <span class="badge results-model-badge">{{ r.model }}</span>
+          <span class="results-question">{{ r.question }}</span>
+          <span class="results-answer">{{ r.response }}</span>
+        </summary>
+        <dl class="results-detail">
+          <dt>Question</dt>
+          <dd>{{ r.question }}</dd>
+          <dt>Response</dt>
+          <dd>{{ r.response }}</dd>
+          <dt>Rating</dt>
+          <dd>{{ "Thumbs up" if r.rating == "up" else "Thumbs down" }}</dd>
+          <dt>Model</dt>
+          <dd>{{ r.model }}</dd>
+          <dt>Timestamp</dt>
+          <dd class="mono">{{ r.timestamp }}</dd>
+          <dt>Response time</dt>
+          <dd>{{ r.response_time_seconds }} s</dd>
+          <dt>Input tokens</dt>
+          <dd>{{ r.input_tokens }}</dd>
+          <dt>Output tokens</dt>
+          <dd>{{ r.output_tokens }}</dd>
+        </dl>
+      </details>
+    {% else %}
+      <p class="results-heading">No rated responses yet. Rate a reply in the Spotta Assistant chat to see it here.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -8,14 +8,14 @@ load_dotenv()
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "openai/gpt-oss-20b:free")
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "liquid/lfm-2.5-2.6b:free")
 
 PROMPT_PATH = os.path.join(os.path.dirname(__file__), "prompts", "website_chatbot.txt")
 KB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "knowledge_base.md")
 
 # USD price per token (input, output), for the models offered in the assistant's dropdown.
 MODEL_PRICING = {
-    "openai/gpt-oss-20b:free": {"input": 0.0, "output": 0.0},
+    "liquid/lfm-2.5-2.6b:free": {"input": 0.0, "output": 0.0},
     "openai/gpt-4o-mini": {"input": 0.00000015, "output": 0.0000006},
     "anthropic/claude-sonnet-5": {"input": 0.000002, "output": 0.00001},
 }
@@ -39,12 +39,22 @@ def ask_model(message):
     return data["choices"][0]["message"]["content"]
 
 
-def _load_system_prompt():
+def _format_context(sources):
+    if not sources:
+        return "(No matching information was found in the knowledge base.)"
+
+    parts = []
+    for source in sources:
+        parts.append(
+            f"[Source {source['index']}] (similarity {source['similarity']:.2f}): {source['text']}"
+        )
+    return "\n\n".join(parts)
+
+
+def _build_system_prompt(sources):
     with open(PROMPT_PATH, encoding="utf-8") as f:
         template = f.read()
-    with open(KB_PATH, encoding="utf-8") as f:
-        knowledge = f.read()
-    return template.replace("{knowledge_base}", knowledge)
+    return template.replace("{context}", _format_context(sources))
 
 
 def _estimate_cost(model, prompt_tokens, completion_tokens):
@@ -76,7 +86,7 @@ def _print_call_metrics(model, usage, elapsed):
     print("------------------------------------------")
 
 
-def ask_assistant(message, model=None):
+def ask_assistant(message, model=None, sources=None):
     if not OPENROUTER_API_KEY:
         raise RuntimeError("OPENROUTER_API_KEY is not set. Add it to .env")
 
@@ -88,7 +98,7 @@ def ask_assistant(message, model=None):
         json={
             "model": used_model,
             "messages": [
-                {"role": "system", "content": _load_system_prompt()},
+                {"role": "system", "content": _build_system_prompt(sources or [])},
                 {"role": "user", "content": message},
             ],
         },
@@ -97,7 +107,14 @@ def ask_assistant(message, model=None):
     elapsed = time.perf_counter() - start
     response.raise_for_status()
     data = response.json()
+    usage = data.get("usage", {})
 
-    _print_call_metrics(used_model, data.get("usage", {}), elapsed)
+    _print_call_metrics(used_model, usage, elapsed)
 
-    return data["choices"][0]["message"]["content"]
+    return {
+        "reply": data["choices"][0]["message"]["content"],
+        "model": used_model,
+        "response_time": round(elapsed, 3),
+        "input_tokens": usage.get("prompt_tokens", 0),
+        "output_tokens": usage.get("completion_tokens", 0),
+    }

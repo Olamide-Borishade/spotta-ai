@@ -57,6 +57,13 @@ PEAK_HOURS = ((11, 14), (16, 18))
 # areas.
 PRICE_DEMAND_WEIGHT = 0.25
 
+# Our estimate is a heuristic proxy (time of day + relative price), not a live
+# occupancy feed, so it should never claim more certainty than real live
+# availability data actually supports. Providers like Parknav, working from
+# real fluid sensor/probe data, cap their own reported confidence around 80%;
+# ours is capped at the same ceiling for consistency and honesty.
+MAX_CONFIDENCE = 0.80
+
 
 def _time_of_day_base(now):
     if now.weekday() == 6:  # Sunday
@@ -76,7 +83,8 @@ def estimate_confidence(spot, price_range, now=None):
     Combines two real signals instead of a fixed or simulated number:
     time of day/day of week, and the spot's price relative to others in the
     current result set. This is still an estimate, not live occupancy data,
-    and is recomputed on every request rather than stored.
+    is capped at MAX_CONFIDENCE, and is recomputed on every request rather
+    than stored.
     """
     now = now or datetime.now()
     base = _time_of_day_base(now)
@@ -88,7 +96,7 @@ def estimate_confidence(spot, price_range, now=None):
         relative_price = 0.0
 
     demand_penalty = relative_price * PRICE_DEMAND_WEIGHT
-    return max(0.0, min(1.0, base - demand_penalty))
+    return max(0.0, min(MAX_CONFIDENCE, base - demand_penalty))
 
 
 def score_spot(spot):

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Components — Spotta AI{% endblock %}
+
+{% block body_class %}home{% endblock %}
+
+{% block content %}
+<div class="grid-tex"></div>
+<div class="glow"></div>
+
+<section class="section">
+  <div class="wrap-flow">
+    <p class="kicker">Components</p>
+    <h2>The building blocks behind Spotta AI</h2>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap-flow">
+    <div class="kicker"><span class="section-marker section-marker-amber"></span>Data Connectors</div>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🅿️</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>City of Vancouver Meters</h3>
+        <p>Real meter locations and posted rates for downtown Vancouver.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">📍</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Destination Geocoding</h3>
+        <p>Converts a typed destination into coordinates via OpenStreetMap Nominatim.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">📡</span>
+          <span class="badge badge-pending">not implemented yet</span>
+        </div>
+        <h3>Live Availability (Parknav/HERE)</h3>
+        <p>Real-time on-street availability; paid enterprise API, deferred.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🕓</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Visit History</h3>
+        <p>The user's saved and navigated spots (progress data).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap-flow">
+    <div class="kicker"><span class="section-marker section-marker-blue"></span>Agent / Brain</div>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">⚖️</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Ranking Engine</h3>
+        <p>Scores spots by distance, price, and confidence.</p>
+      </div>
+
+      <button type="button" id="open-assistant-card" class="component-card component-card-link">
+        <div class="component-card-head">
+          <span class="component-icon">🤖</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>AI Assistant (OpenRouter)</h3>
+        <p>Answers questions and helps search, via a swappable OpenRouter model.</p>
+      </button>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🧠</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Memory</h3>
+        <p>Persistent preferences so returning users get context-aware suggestions.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🔁</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>"Find Me Better" Agent Loop</h3>
+        <p>Iteratively relaxes constraints to find an acceptable spot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap-flow">
+    <div class="kicker"><span class="section-marker section-marker-coral"></span>Tools / Services</div>
+    <div class="component-grid">
+      <a href="{{ url_for('index') }}" class="component-card component-card-link">
+        <div class="component-card-head">
+          <span class="component-icon">🗺️</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Ranked Results + Map</h3>
+        <p>List and Leaflet map pins around the destination.</p>
+      </a>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🧭</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Navigate (Google Maps)</h3>
+        <p>Opens real driving directions to the chosen spot.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">💬</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Help Chatbot Widget</h3>
+        <p>Bottom-right widget answering questions about Spotta.</p>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🎙️</span>
+          <span class="badge badge-live">live</span>
+        </div>
+        <h3>Voice Input</h3>
+        <p>Tap-to-talk destination entry via the browser.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("open-assistant-card").addEventListener("click", function () {
+    document.getElementById("assistant-toggle").click();
+  });
+</script>
+{% endblock %}

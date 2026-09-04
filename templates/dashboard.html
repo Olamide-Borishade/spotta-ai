@@ -2,23 +2,57 @@
 
 {% block title %}Dashboard — Spotta AI{% endblock %}
 
-{% block content %}
-<div class="wrap page-wrap">
-  <p class="kicker">Dashboard</p>
-  <h2>Welcome, {{ username }}</h2>
-  <p class="results-heading">Your parking activity</p>
+{% block body_class %}home{% endblock %}
 
-  {% if progress %}
-    <div class="progress-grid">
-      {% for entry in progress %}
-        <div class="progress-card">
-          Spot #{{ entry.spot_id }} — {{ entry.status }}
-          <span class="mono">({{ entry.updated_at }})</span>
-        </div>
-      {% endfor %}
+{% block content %}
+<div class="grid-tex"></div>
+<div class="glow"></div>
+
+<section class="section">
+  <div class="wrap-flow">
+    <p class="kicker">Dashboard</p>
+    <h2>Welcome, {{ username }}</h2>
+    <p class="lead">Your parking activity on Spotta AI.</p>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="num">{{ visit_count }}</div>
+        <div class="lab">Total spots navigated to</div>
+      </div>
+      <div class="stat">
+        <div class="num">{{ unique_spots }}</div>
+        <div class="lab">Unique spots visited</div>
+      </div>
+      <div class="stat">
+        <div class="num mono">{{ activity[0].updated_at if activity else "—" }}</div>
+        <div class="lab">Most recent activity</div>
+      </div>
     </div>
-  {% else %}
-    <p class="results-heading">No activity yet. <a href="/">Search for parking</a> to get started.</p>
-  {% endif %}
-</div>
+
+    {% if activity %}
+      <div class="progress-grid">
+        {% for entry in activity %}
+          <div class="progress-card">
+            <div class="progress-card-main">
+              <h3>{{ entry.spot_name or "Spot #" ~ entry.spot_id }}</h3>
+              <p class="progress-card-meta mono">
+                {{ entry.status }}
+                {% if entry.price_per_hour is not none %}
+                  &middot; ${{ "%.2f"|format(entry.price_per_hour) }}/hr
+                {% endif %}
+                &middot; {{ entry.updated_at }}
+              </p>
+            </div>
+            <a class="btn-primary btn-small" href="/navigate/{{ entry.spot_id }}">Navigate again</a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p class="empty-title">No activity yet.</p>
+        <p class="empty-suggestion"><a href="/">Search for parking</a> to get started.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

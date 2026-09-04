@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Workflows — Spotta AI{% endblock %}
+
+{% block body_class %}home{% endblock %}
+
+{% block content %}
+<div class="grid-tex"></div>
+<div class="glow"></div>
+
+<section class="section">
+  <div class="wrap-flow">
+    <p class="kicker">Workflows</p>
+    <h2>How Spotta's components work together</h2>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap-flow">
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🧭</span>
+        </div>
+        <h3>Find Parking Near a Destination</h3>
+        <p class="workflow-uses"><strong>Uses:</strong> Destination Geocoding, Ranking Engine, Ranked Results + Map</p>
+        <p>Geocode the typed destination, rank nearby spots by distance, price, and availability confidence, then show them as a list and on the map.</p>
+        <form class="search-form workflow-run-form" method="GET" action="{{ url_for('index') }}">
+          <input type="text" name="destination" placeholder="Enter a destination" required>
+          <button type="submit" class="btn-primary btn-small">Run</button>
+        </form>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">💬</span>
+        </div>
+        <h3>Ask the Assistant About Parking</h3>
+        <p class="workflow-uses"><strong>Uses:</strong> AI Assistant, Knowledge Base</p>
+        <p>A user asks a question in the chat, and the assistant answers from the Spotta knowledge base, no lookup required.</p>
+        <button type="button" id="run-assistant-workflow" class="btn-primary btn-small workflow-run-btn">Run</button>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-head">
+          <span class="component-icon">🔁</span>
+          <span class="badge badge-agentic">agentic</span>
+        </div>
+        <h3>Find Me a Better Spot</h3>
+        <p class="workflow-uses"><strong>Uses:</strong> AI Agent, Ranking Engine, Destination Geocoding</p>
+        <p>Take a goal (destination, duration, budget), search and evaluate the results, then iteratively relax constraints until an acceptable spot is found, explaining the tradeoffs made along the way.</p>
+        <form class="search-form workflow-run-form" method="GET" action="{{ url_for('index') }}">
+          <input type="hidden" name="run_agent" value="1">
+          <input type="text" name="destination" placeholder="Enter a destination" required>
+          <button type="submit" class="btn-primary btn-small">Run</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("run-assistant-workflow").addEventListener("click", function () {
+    document.getElementById("assistant-toggle").click();
+  });
+</script>
+{% endblock %}

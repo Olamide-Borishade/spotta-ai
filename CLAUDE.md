@@ -23,12 +23,18 @@
 ## 🗂️ Code Structure
 - 🚪 **`app.py`** - Flask app entry point, routes
 - 🖼️ **`templates/`** - front end (Jinja2)
+- 🧩 **`templates/components.html`** - `/components` catalog page listing Spotta's building blocks (live/not implemented yet), UI only
+- 🔀 **`templates/workflows.html`** - `/workflows` catalog page, each card runnable: search reuses `/` via a GET `?destination=` query, "agentic" card also passes `?run_agent=1` to auto-run the existing Find Me Better loop, assistant card opens the existing chat widget
 - 🎨 **`static/`** - CSS, images, icons, small JS (voice input, scroll-reveal)
 - 🗄️ **`data/`** - all app data
-- 💾 **`data/app.db`** - user accounts and progress (SQLite)
-- 📊 **`data/spots.json`** - parking spot data (real City of Vancouver locations/prices; confidence is computed dynamically, not stored, see `logic/ranking.py`)
-- 📚 **`data/knowledge_base.md`** - editable facts for the Spotta Assistant chatbot
+- 💾 **`data/app.db`** - user accounts, roles (`user`/`betatester`/`admin`), memory (`last_destination`, `preferred_sort`), and progress (SQLite)
+- 📊 **`data/spots.json`** - parking spot data (real City of Vancouver locations/prices; confidence is computed dynamically per request, capped at `MAX_CONFIDENCE` (80%) to stay honest against real live-availability providers, see `logic/ranking.py`)
+- 📚 **`data/knowledge_base.md`** - editable facts for the Spotta Assistant chatbot, chunked and embedded for RAG
+- 🧠 **`data/chroma/`** - ChromaDB vector store for knowledge base chunks (generated, gitignored, rebuild via `/chunks`)
+- 👍 **`data/results.json`** - thumbs up/down ratings on chatbot responses (generated, gitignored, view at `/results`)
 - ⚙️ **`logic/`** - backend logic (ranking, geocoding, parknav adapter, OpenRouter agent calls)
+- 🔀 **`logic/workflows/`** - placeholder for future workflow logic (see `/workflows` catalog page)
+- 🔎 **`logic/rag.py`** - chunking, embedding (sentence-transformers), and retrieval for the chatbot
 - 💬 **`logic/prompts/`** - system prompt text files for AI agents (e.g. `website_chatbot.txt`)
 - 🧪 **`scripts/`** - quick scripting (e.g. one-off data prep)
 - ✅ **`tests/`** - unit tests (pytest)

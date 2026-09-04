@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Base Chunks — Spotta AI{% endblock %}
+
+{% block content %}
+<div class="wrap page-wrap">
+  <p class="kicker">Chunks</p>
+  <h2>Knowledge base chunks</h2>
+  <p class="results-heading">
+    {{ chunks|length }} chunk{{ "s" if chunks|length != 1 else "" }} extracted from
+    <span class="mono">data/knowledge_base.md</span>, targeting ~{{ chunk_size }} tokens each.
+  </p>
+
+  <form method="POST" action="/chunks" class="chunks-controls">
+    <label for="chunk_size">Chunk size (tokens)</label>
+    <select name="chunk_size" id="chunk_size">
+      {% for size in chunk_sizes %}
+        <option value="{{ size }}" {% if size == chunk_size %}selected{% endif %}>{{ size }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-primary btn-small">Re-run chunking</button>
+  </form>
+
+  <p id="chunks-status" class="settings-confirm" {% if not building %}hidden{% endif %}>
+    Re-chunking and embedding…
+  </p>
+
+  <div class="chunk-list">
+    {% for chunk in chunks %}
+      <div class="chunk-card">
+        <div class="chunk-meta">
+          <span class="mono">#{{ chunk.id }}</span>
+          <span>{{ chunk.section }}</span>
+          <span class="mono">{{ chunk.token_count }} tokens</span>
+        </div>
+        <pre class="chunk-text">{{ chunk.text }}</pre>
+      </div>
+    {% else %}
+      <p class="results-heading">No chunks yet. Open the Spotta Assistant chat once to build the index, or click "Re-run chunking" above.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  window.CHUNKS_PAGE_BUILDING = {{ building | tojson }};
+</script>
+<script src="{{ url_for('static', filename='chunks.js') }}"></script>
+{% endblock %}

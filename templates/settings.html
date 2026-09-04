@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — Spotta AI{% endblock %}
+
+{% block content %}
+<div class="wrap page-wrap">
+  <p class="kicker">Settings</p>
+  <h2>Spotta Assistant content</h2>
+  <p class="results-heading">Edit the facts and prompt the chatbot answers from.</p>
+
+  <div class="settings-pane">
+    <h3>Knowledge base <span class="mono settings-path">data/knowledge_base.md</span></h3>
+    {% if saved == "knowledge_base" %}<p class="settings-confirm">Saved.</p>{% endif %}
+    <form method="POST" action="/settings">
+      <input type="hidden" name="target" value="knowledge_base">
+      <textarea name="content" class="settings-textarea" spellcheck="false">{{ knowledge_base }}</textarea>
+      <button type="submit" class="btn-primary btn-small">Save knowledge base</button>
+    </form>
+  </div>
+
+  <div class="settings-pane">
+    <h3>Chatbot prompt <span class="mono settings-path">logic/prompts/website_chatbot.txt</span></h3>
+    {% if saved == "prompt" %}<p class="settings-confirm">Saved.</p>{% endif %}
+    <form method="POST" action="/settings">
+      <input type="hidden" name="target" value="prompt">
+      <textarea name="content" class="settings-textarea" spellcheck="false">{{ prompt }}</textarea>
+      <button type="submit" class="btn-primary btn-small">Save prompt</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

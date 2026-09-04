@@ -2,3 +2,5 @@ Flask
 requests
 python-dotenv
 pytest
+sentence-transformers
+chromadb

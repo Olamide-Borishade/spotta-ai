@@ -221,3 +221,6 @@ __pycache__/
 .env
 venv/
 data/app.db
+data/chroma/
+data/results.json
+spotta.db
